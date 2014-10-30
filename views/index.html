@@ -163,7 +163,7 @@ angular.module('ESPlus',[])
     $scope.loading = true;
 
     var getRange = function(arr,start,end){
-        //examples 1-100, 101-200
+        /*examples 1-100, 101-200*/
         return _.take(_.rest(dataPoints,start-1),(end - start + 1));
     };
 
@@ -195,7 +195,8 @@ angular.module('ESPlus',[])
         $scope.headerRow = [_.last($scope.dataPoints)];
     };
 
-    $http.get('http://54.68.110.91\:6001/Store/TestOrg/current/0')
+/* location of the real store is $http.get('http://54.68.110.91\:6001/Store/TestOrg/current/0')*/
+    $http.get('/data/perfData.json')
     .then(function(data){
 
         //data.data.data 

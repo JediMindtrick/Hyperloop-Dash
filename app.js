@@ -21,6 +21,14 @@ app.get('/', function(req, res) {
     res.render('index.html');
 });
 
+app.get('/crossfilter', function(req, res) {
+    res.render('crossfilter.html');
+});
+
+app.get('/MyCrossfilter', function(req, res) {
+    res.render('myCrossfilter.html');
+});
+
 server = http.createServer(app).listen(app.get('port'), function(){
     console.log('Express server listening on port ' + app.get('port'));
 });
