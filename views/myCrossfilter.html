@@ -1,185 +1,14 @@
-
 <!DOCTYPE html>
 <meta charset="utf-8">
 <title>Crossfilter</title>
-<style>
 
-@import url(http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:400,700);
-
-body {
-  font-family: "Helvetica Neue";
-  margin: 40px auto;
-  width: 960px;
-  min-height: 2000px;
-}
-
-#body {
-  position: relative;
-}
-
-footer {
-  padding: 2em 0 1em 0;
-  font-size: 12px;
-}
-
-h1 {
-  font-size: 96px;
-  margin-top: .3em;
-  margin-bottom: 0;
-}
-
-h1 + h2 {
-  margin-top: 0;
-}
-
-h2 {
-  font-weight: 400;
-  font-size: 28px;
-}
-
-h1, h2 {
-  font-family: "Yanone Kaffeesatz";
-  text-rendering: optimizeLegibility;
-}
-
-#body > p {
-  line-height: 1.5em;
-  width: 640px;
-  text-rendering: optimizeLegibility;
-}
-
-#charts {
-  padding: 10px 0;
-}
-
-.chart {
-  display: inline-block;
-  height: 151px;
-  margin-bottom: 20px;
-}
-
-.reset {
-  padding-left: 1em;
-  font-size: smaller;
-  color: #ccc;
-}
-
-.background.bar {
-  fill: #ccc;
-}
-
-.foreground.bar {
-  fill: steelblue;
-}
-
-.axis path, .axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
-.axis text {
-  font: 10px sans-serif;
-}
-
-.brush rect.extent {
-  fill: steelblue;
-  fill-opacity: .125;
-}
-
-.brush .resize path {
-  fill: #eee;
-  stroke: #666;
-}
-
-#hour-chart {
-  width: 260px;
-}
-
-#delay-chart {
-  width: 230px;
-}
-
-#distance-chart {
-  width: 420px;
-}
-
-#date-chart {
-  width: 920px;
-}
-
-#flight-list {
-  min-height: 1024px;
-}
-
-#flight-list .date,
-#flight-list .day {
-  margin-bottom: .4em;
-}
-
-#flight-list .flight {
-  line-height: 1.5em;
-  background: #eee;
-  width: 640px;
-  margin-bottom: 1px;
-}
-
-#flight-list .time {
-  color: #999;
-}
-
-#flight-list .flight div {
-  display: inline-block;
-  width: 100px;
-}
-
-#flight-list div.distance,
-#flight-list div.delay {
-  width: 160px;
-  padding-right: 10px;
-  text-align: right;
-}
-
-#flight-list .early {
-  color: green;
-}
-
-aside {
-  position: absolute;
-  left: 740px;
-  font-size: smaller;
-  width: 220px;
-}
-
-</style>
+<link rel="stylesheet" type="text/css" href="/stylesheets/crossfilter.css">
 
 <div id="body">
 
-<a href="https://github.com/square"><img src="http://square.github.io/crossfilter/logotype.png" width="122" height="31"></a>
-
-<h1>Crossfilter</h1>
-
-<h2>Fast Multidimensional Filtering for Coordinated Views</h2>
-
-<p><b>Crossfilter</b> is a <a href="https://github.com/square/crossfilter">JavaScript library</a> for exploring large multivariate datasets in the browser. Crossfilter supports extremely fast (&lt;30ms) interaction with coordinated views, even with datasets containing a million or more records; we built it to power analytics for <a href="https://squareup.com/register">Square Register</a>, allowing merchants to slice and dice their payment history fluidly.
-
-<p>Since most interactions only involve a single dimension, and then only small adjustments are made to the filter values, incremental filtering and reducing is significantly faster than starting from scratch. Crossfilter uses sorted indexes (and a few bit-twiddling hacks) to make this possible, dramatically increasing the perfor&shy;mance of live histograms and top-<i>K</i> lists. For more details on how Crossfilter works, see the <a href="https://github.com/square/crossfilter/wiki/API-Reference">API reference</a>.
-
-<h2>Example: Airline on-time performance</h2>
-
-<p>The coordinated visualizations below (built with <a href="http://mbostock.github.com/d3/">D3</a>) show nearly a quarter-million flights from early 2001: part of the <a href="http://stat-computing.org/dataexpo/2009/">ASA Data Expo</a> dataset. The dataset is 5.3MB, so it might take a few seconds to download. Click and drag on any chart to filter by the associated dimension. The table beneath shows the eighty most recent flights that match the current filters; these are the <i>details on demand</i>, anecdotal evidence you can use to weigh different hypotheses.
-
-<p>Some questions to consider: How does time-of-day correlate with <a href="javascript:filter([null, [100, 150], null, null])">arrival delay</a>? Are <a href="javascript:filter([null, null, [1700, 2000], null])">longer</a> or <a href="javascript:filter([null, null, [0, 300], null])">shorter</a> flights more likely to arrive early? What happened on <a href="javascript:filter([null, [80, 150], null, [new Date(2001, 0, 12), new Date(2001, 0, 13)]])">January 12</a>? How do flight patterns differ between <a href="javascript:filter([null, null, null, [new Date(2001, 0, 27), new Date(2001, 0, 29)]])">weekends</a> and <a href="javascript:filter([null, null, null, [new Date(2001, 0, 29), new Date(2001, 1, 3)]])">weekdays</a>, or <a href="javascript:filter([[4, 7], null, null, null])">mornings</a> and <a href="javascript:filter([[21, 24], null, null, null])">nights</a>? <a href="https://github.com/square/crossfilter/tree/gh-pages">Fork this example</a> and try your own data!
-
 <div id="charts">
-  <div id="hour-chart" class="chart">
-    <div class="title">Time of Day</div>
-  </div>
   <div id="delay-chart" class="chart">
     <div class="title">Arrival Delay (min.)</div>
-  </div>
-  <div id="distance-chart" class="chart">
-    <div class="title">Distance (mi.)</div>
   </div>
   <div id="date-chart" class="chart">
     <div class="title">Date</div>
@@ -192,45 +21,97 @@ aside {
   <div id="flight-list" class="list"></div>
 </div>
 
-<footer>
-  <span style="float:right;">
-    Released under the <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License 2.0</a>.
-  </span>
-  Copyright 2012 <a href="http://squareup.com">Square, Inc.</a>
-</footer>
-
 </div>
 
-<a href="https://github.com/square/crossfilter"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
-
+<script type="text/javascript" src="/javascripts/lodash.min.js"></script>
 <script src="/javascripts/crossfilter.v1.min.js"></script>
 <script src="/javascripts/d3.v3.min.js"></script>
 <script>
 
-// (It's CSV, but GitHub Pages only gzip's JSON at the moment.)
-d3.json("/data/perfData.json", function(error, res) {
+    var getRange = function(arr,start,end){
+        //examples 1-100, 101-200
+        return _.take(_.rest(dataPoints,start-1),(end - start + 1));
+    };
 
+    var getRangePartitions = function(len,by){
+        var toReturn = [];
+        var ends = [];
+        var currStart = 1;
+
+        while(currStart < len){
+            var _range = {
+                begin: currStart,
+                end: currStart + (by - 1)
+            };
+
+            if(_range.end > len) _range.end = len;
+
+            currStart = _range.end + 1;
+
+            toReturn.push(_range);
+        }
+
+        return toReturn;
+    };
+
+d3.csv("/data/flightData.csv", function(error, flights) {
+//d3.json("/data/bigPerfData.json", function(error, res) {
+
+/*
 //date,delay,distance,origin,destination
-  var flights = res.data;
-  var first = flights[0];
+    var flights = res.data;
+    var first = flights[0];
 
-  // Various formatters.
-  var formatNumber = d3.format(",d"),
-      formatChange = d3.format("+,d"),
-      formatDate = d3.time.format("%B %d, %Y"),
-      formatTime = d3.time.format("%I:%M %p");
+          //data.data.data 
+    var dataPoints = _.map(res.data,function(e){
+        var evt = e._metadata;
+        var _newEvt = {
+            streamOrder: evt.streamOrder,
+            eventId: evt.eventId,
 
-  // A nest operator, for grouping the flight list.
-  var nestByDate = d3.nest()
-      .key(function(d) { return d3.time.day(d.date); });
+            TotalTime: evt.perfClientReceived - evt.perfClientSent,
+            SendToStream: evt.perfStreamReceived - evt.perfClientSent,
+            Between1: evt.perfBeginCommit - evt.perfStreamReceived,
+            WriteToDisk: evt.perfEndCommit - evt.perfBeginCommit,
+            Between2: evt.perfPublishEvent - evt.perfEndCommit,
+            SendToBLP: evt.perfPublishReceived - evt.perfPublishEvent,
+            BLPlogic: evt.perfSendToStore - evt.perfPublishReceived,
+            SendToStore: evt.perfStoreReceived - evt.perfSendToStore,
+            SetModel: evt.perfNotifyModelChange - evt.perfStoreReceived,
+            SendToClient: evt.perfClientReceived - evt.perfNotifyModelChange,
 
-  // A little coercion, since the CSV is untyped.
-  flights.forEach(function(d, i) {
-    d.index = i;
-    d.date = parseDate(d.date);
-    d.delay = +d.delay;
-    d.distance = +d.distance;
-  });
+            perfClientSent: evt.perfClientSent,
+            perfStreamReceived: evt.perfStreamReceived,
+            perfBeginCommit: evt.perfBeginCommit,
+            perfEndCommit: evt.perfEndCommit,
+            perfPublishEvent: evt.perfPublishEvent,
+            perfPublishReceived: evt.perfPublishReceived,
+            perfSendToStore: evt.perfSendToStore,
+            perfStoreReceived: evt.perfStoreReceived,
+            perfNotifyModelChange: evt.perfNotifyModelChange,
+            perfClientReceived: evt.perfClientReceived                
+        };
+        return _newEvt;
+    });
+*/
+
+    // Various formatters.
+    var formatNumber = d3.format(",d"),
+        formatChange = d3.format("+,d"),
+        formatDate = d3.time.format("%B %d, %Y"),
+        formatTime = d3.time.format("%I:%M %p");
+
+    // A nest operator, for grouping the flight list.
+    var nestByDate = d3.nest()
+        .key(function(d) { return d3.time.day(d.date); });
+
+    // A little coercion, since the CSV is untyped.
+    flights.forEach(function(d, i) {
+        d.index = i;
+        d.date = parseDate(d.date);
+        d.delay = +d.delay;
+        d.distance = +d.distance;
+    });
 
   // Create the crossfilter for the relevant dimensions and groups.
   var flight = crossfilter(flights),
@@ -247,25 +128,11 @@ d3.json("/data/perfData.json", function(error, res) {
   var charts = [
 
     barChart()
-        .dimension(hour)
-        .group(hours)
-      .x(d3.scale.linear()
-        .domain([0, 24])
-        .rangeRound([0, 10 * 24])),
-
-    barChart()
         .dimension(delay)
         .group(delays)
       .x(d3.scale.linear()
         .domain([-60, 150])
         .rangeRound([0, 10 * 21])),
-
-    barChart()
-        .dimension(distance)
-        .group(distances)
-      .x(d3.scale.linear()
-        .domain([0, 2000])
-        .rangeRound([0, 10 * 40])),
 
     barChart()
         .dimension(date)
