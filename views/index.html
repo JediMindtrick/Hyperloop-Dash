@@ -28,11 +28,11 @@
     <label>End: {{dataHeader.endTime}}</label><br />
 
     <ul class="pagination" ng-hide="loading">   
-        <li><a ng-click="">&laquo;</a></li>
-        <li ng-repeat="r in ranges track by $index">
+<!--        <li><a ng-click="">&laquo;</a></li>-->
+        <li ng-class="{active: r == selectedRange}" ng-repeat="r in ranges track by $index">
             <a ng-click="setRange(r)">{{$index + 1}}</a>
         </li>
-        <li><a ng-click="">&raquo;</a></li>
+<!--        <li><a ng-click="">&raquo;</a></li>-->
     </ul>
 
     <div style="width:80%;">
