@@ -12,8 +12,9 @@
         }
     </style>
 
+    <script type="text/javascript" src="/reload/reload.js"></script>
     <script type="text/javascript" src="/javascripts/lodash.min.js"></script>
-	<script type="text/javascript" src="/javascripts/socket.io.js"></script>
+    <script type="text/javascript" src="/javascripts/socket.io.js"></script>
     <script type="text/javascript" src="/javascripts/angular.min.js"></script>
     <script type="text/javascript" src="/javascripts/angular-ui.min.js"></script>
     <script type="text/javascript" src="/javascripts/angular-ui-router.min.js"></script>
@@ -196,7 +197,7 @@ angular.module('ESPlus',[])
     };
 
 /* location of the real store is $http.get('http://54.68.110.91\:6001/Store/TestOrg/current/0')*/
-    $http.get('/data/perfData.json')
+    $http.get('/data/bigPerfData.json')
     .then(function(data){
 
         //data.data.data 
