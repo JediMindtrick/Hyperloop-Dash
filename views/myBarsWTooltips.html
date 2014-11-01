@@ -63,7 +63,7 @@ body {
 <script type="text/javascript">
 var getRange = function(arr,start,end){
     //examples 1-100, 101-200
-    return _.take(_.rest(dataPoints,start-1),(end - start + 1));
+    return _.take(_.rest(arr,start-1),(end - start + 1));
 };
 
 var getRangePartitions = function(len,by){
@@ -83,6 +83,29 @@ var getRangePartitions = function(len,by){
 
         toReturn.push(_range);
     }
+
+    return toReturn;
+};
+
+var getSet = function(arr){
+    var toReturn = [];
+
+    var partitions = getRangePartitions(arr.length,100);
+
+    toReturn = _.map(partitions,function(part,idx){
+
+        var avg = _.reduce(getRange(arr,part.begin,part.end),
+            function(acc,point){
+                acc.count++;
+                acc.sum += point.TotalTime;
+                return acc;
+            },{count: 0, sum: 0});
+
+        return {
+            partition: idx,
+            time: avg.sum / avg.count
+        };
+    });
 
     return toReturn;
 };
@@ -113,12 +136,47 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.tsv("/data/bigPerfData.json", function(error, data) {
+d3.json("/data/bigPerfData.json", function(error, data) {
+
+var dataPoints = _.map(data.data,function(e){
+    var evt = e._metadata;
+    var _newEvt = {
+        streamOrder: evt.streamOrder,
+        eventId: evt.eventId,
+
+        TotalTime: evt.perfClientReceived - evt.perfClientSent,
+        SendToStream: evt.perfStreamReceived - evt.perfClientSent,
+        Between1: evt.perfBeginCommit - evt.perfStreamReceived,
+        WriteToDisk: evt.perfEndCommit - evt.perfBeginCommit,
+        Between2: evt.perfPublishEvent - evt.perfEndCommit,
+        SendToBLP: evt.perfPublishReceived - evt.perfPublishEvent,
+        BLPlogic: evt.perfSendToStore - evt.perfPublishReceived,
+        SendToStore: evt.perfStoreReceived - evt.perfSendToStore,
+        SetModel: evt.perfNotifyModelChange - evt.perfStoreReceived,
+        SendToClient: evt.perfClientReceived - evt.perfNotifyModelChange,
+
+        perfClientSent: evt.perfClientSent,
+        perfStreamReceived: evt.perfStreamReceived,
+        perfBeginCommit: evt.perfBeginCommit,
+        perfEndCommit: evt.perfEndCommit,
+        perfPublishEvent: evt.perfPublishEvent,
+        perfPublishReceived: evt.perfPublishReceived,
+        perfSendToStore: evt.perfSendToStore,
+        perfStoreReceived: evt.perfStoreReceived,
+        perfNotifyModelChange: evt.perfNotifyModelChange,
+        perfClientReceived: evt.perfClientReceived
+    };
+    return _newEvt;
+});
+
+    var set0 = getSet(dataPoints);
 
     var set = [
         {partition: '1', time: 400},
         {partition: '2', time: 8000}
     ];
+
+    set = set0;
 
     x.domain(_.map(set,function(d) { return d.partition; }));
     y.domain([0, d3.max(set, function(d) { return d.time; })]);
