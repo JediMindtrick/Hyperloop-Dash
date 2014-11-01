@@ -5,7 +5,7 @@
 In package.json
     "ejs": "*",
     "reload": "JediMindtrick/reload"
-    
+
 In shell
 supervisor -e 'html|js' node server.js
 */
@@ -36,6 +36,22 @@ app.get('/crossfilter', function(req, res) {
 
 app.get('/MyCrossfilter', function(req, res) {
     res.render('myCrossfilter.html');
+});
+
+app.get('/MyStackedBars',function(req,res){
+    res.render('myStackedBars.html');
+});
+
+app.get('/StackedBars',function(req,res){
+    res.render('sampleStackedBars.html');
+});
+
+app.get('/BarTooltips',function(req,res){
+    res.render('sampleBarsWTooltips.html');
+});
+
+app.get('/MyBarTooltips',function(req,res){
+    res.render('myBarsWTooltips.html');    
 });
 
 server = http.createServer(app).listen(app.get('port'), function(){

@@ -28,7 +28,7 @@
     <label>Start: {{dataHeader.startTime}}</label><br />
     <label>End: {{dataHeader.endTime}}</label><br />
 
-    <ul class="pagination" ng-hide="loading">   
+    <ul class="pagination" ng-hide="loading">
 <!--        <li><a ng-click="">&laquo;</a></li>-->
         <li ng-class="{active: r == selectedRange}" ng-repeat="r in ranges track by $index">
             <a ng-click="setRange(r)">{{$index + 1}}</a>
@@ -200,7 +200,7 @@ angular.module('ESPlus',[])
     $http.get('/data/bigPerfData.json')
     .then(function(data){
 
-        //data.data.data 
+        //data.data.data
         dataPoints = _.map(data.data.data,function(e){
             var evt = e._metadata;
             var _newEvt = {
@@ -227,7 +227,7 @@ angular.module('ESPlus',[])
                 perfSendToStore: evt.perfSendToStore,
                 perfStoreReceived: evt.perfStoreReceived,
                 perfNotifyModelChange: evt.perfNotifyModelChange,
-                perfClientReceived: evt.perfClientReceived                
+                perfClientReceived: evt.perfClientReceived
             };
             return _newEvt;
         });

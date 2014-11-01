@@ -1,0 +1,147 @@
+Using d3-tip to add tooltips to a d3 bar chart.
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar {
+  fill: orange;
+}
+
+.bar:hover {
+  fill: orangered ;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+</style>
+<body>
+<h1>this one is mine.</h1>
+<script type="text/javascript" src="/javascripts/lodash.min.js"></script>
+<script src="/javascripts/d3.v3.min.js"></script>
+<script type="text/javascript" src="/reload/reload.js"></script>
+<script type="text/javascript">
+var getRange = function(arr,start,end){
+    //examples 1-100, 101-200
+    return _.take(_.rest(dataPoints,start-1),(end - start + 1));
+};
+
+var getRangePartitions = function(len,by){
+    var toReturn = [];
+    var ends = [];
+    var currStart = 1;
+
+    while(currStart < len){
+        var _range = {
+            begin: currStart,
+            end: currStart + (by - 1)
+        };
+
+        if(_range.end > len) _range.end = len;
+
+        currStart = _range.end + 1;
+
+        toReturn.push(_range);
+    }
+
+    return toReturn;
+};
+</script>
+<script>
+
+var margin = {top: 40, right: 20, bottom: 30, left: 40},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var x = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+d3.tsv("/data/bigPerfData.json", function(error, data) {
+
+    var set = [
+        {partition: '1', time: 400},
+        {partition: '2', time: 8000}
+    ];
+
+    x.domain(_.map(set,function(d) { return d.partition; }));
+    y.domain([0, d3.max(set, function(d) { return d.time; })]);
+
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
+
+    svg.selectAll(".bar")
+        .data(set)
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("x", function(d) { return x(d.partition); })
+        .attr("width", x.rangeBand())
+        .attr("y", function(d) { return y(d.time); })
+        .attr("height", function(d) { return height - y(d.time); });
+
+});
+
+</script>
+</body>
