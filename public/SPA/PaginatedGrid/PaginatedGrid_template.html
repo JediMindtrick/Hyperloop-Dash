@@ -1,0 +1,93 @@
+<ul class="pagination" ng-hide="loading">
+    <li ng-class="{active: r == selectedRange}" ng-repeat="r in ranges track by $index">
+        <a ng-click="setRange(r)">{{$index + 1}}</a>
+    </li>
+</ul>
+
+<div style="width:80%;">
+<!--Dirty hack-->
+<table style="margin-bottom:-28px;" class="CSSTableGenerator" ng-hide="loading">
+    <tbody style="display: block; overflow-y: auto; overflow-x: hidden;">
+        <tr>
+            <td>#</td>
+            <td style="padding-bottom:20px;">Stream Order</td>
+            <td>Event Id</td>
+            <td>Total Time</td>
+            <td>Send To Stream</td>
+            <td>Between1</td>
+            <td>Write To Disk</td>
+            <td>Between2</td>
+            <td>Send To BLP</td>
+            <td>BLP Logic</td>
+            <td>Send To Store</td>
+            <td>Set Model</td>
+            <td>Send To Client</td>
+        </tr>
+        <tr style="display:none;" ng-repeat="val in headerRow track by $index | orderBy:streamOrder">
+            <td>99</td>
+            <td>{{val.streamOrder}}</td>
+            <td>1a1b00a0-875e-4b12-9c50-88591bacb065</td>
+            <td>{{val.TotalTime}}</td>
+            <td>{{val.SendToStream}}</td>
+            <td>{{val.Between1}}</td>
+            <td>{{val.WriteToDisk}}</td>
+            <td>{{val.Between2}}</td>
+            <td>{{val.SendToBLP}}</td>
+            <td>{{val.BLPlogic}}</td>
+            <td>{{val.SendToStore}}</td>
+            <td>{{val.SetModel}}</td>
+            <td>{{val.SendToClient}}</td>
+        </tr>
+        <tr style="line-height:0px;opacity:0;color:rgb(170, 212, 255);" ng-repeat="val in headerRow track by $index | orderBy:streamOrder">
+            <td style="color:rgb(170, 212, 255);">99</td>
+            <td style="color:rgb(170, 212, 255);">{{val.streamOrder}}</td>
+            <td style="color:rgb(170, 212, 255);">1a1b00a0-875e-4b12-9c50-88591bacb065</td>
+            <td style="color:rgb(170, 212, 255);">{{val.TotalTime}}</td>
+            <td style="color:rgb(170, 212, 255);">{{val.SendToStream}}</td>
+            <td style="color:rgb(170, 212, 255);">{{val.Between1}}</td>
+            <td style="color:rgb(170, 212, 255);">{{val.WriteToDisk}}</td>
+            <td style="color:rgb(170, 212, 255);">{{val.Between2}}</td>
+            <td style="color:rgb(170, 212, 255);">{{val.SendToBLP}}</td>
+            <td style="color:rgb(170, 212, 255);">{{val.BLPlogic}}</td>
+            <td style="color:rgb(170, 212, 255);">{{val.SendToStore}}</td>
+            <td style="color:rgb(170, 212, 255);">{{val.SetModel}}</td>
+            <td style="color:rgb(170, 212, 255);">{{val.SendToClient}}</td>
+        </tr>
+    </tbody>
+</table>
+
+<table class="CSSTableGenerator" ng-hide="loading">
+    <tbody style="height:250px; display: block; overflow-y: auto; overflow-x: hidden;">
+        <tr style="line-height:0px;color:rgb(170, 212, 255);">
+            <td style="color:rgb(170, 212, 255);">#</td>
+            <td style="color:rgb(170, 212, 255);">Stream Order</td>
+            <td style="color:rgb(170, 212, 255);">Event Id</td>
+            <td style="color:rgb(170, 212, 255);">Total Time</td>
+            <td style="color:rgb(170, 212, 255);">Send To Stream</td>
+            <td style="color:rgb(170, 212, 255);">Between1</td>
+            <td style="color:rgb(170, 212, 255);">Write To Disk</td>
+            <td style="color:rgb(170, 212, 255);">Between2</td>
+            <td style="color:rgb(170, 212, 255);">Send To BLP</td>
+            <td style="color:rgb(170, 212, 255);">BLP Logic</td>
+            <td style="color:rgb(170, 212, 255);">Send To Store</td>
+            <td style="color:rgb(170, 212, 255);">Set Model</td>
+            <td style="color:rgb(170, 212, 255);">Send To Client</td>
+        </tr>
+        <tr ng-repeat="val in dataPoints track by $index | orderBy:streamOrder">
+            <td>{{$index}}</td>
+            <td>{{val.streamOrder}}</td>
+            <td>{{val.eventId}}</td>
+            <td>{{val.TotalTime}}</td>
+            <td>{{val.SendToStream}}</td>
+            <td>{{val.Between1}}</td>
+            <td>{{val.WriteToDisk}}</td>
+            <td>{{val.Between2}}</td>
+            <td>{{val.SendToBLP}}</td>
+            <td>{{val.BLPlogic}}</td>
+            <td>{{val.SendToStore}}</td>
+            <td>{{val.SetModel}}</td>
+            <td>{{val.SendToClient}}</td>
+        </tr>
+    </tbody>
+</table>
+</div>

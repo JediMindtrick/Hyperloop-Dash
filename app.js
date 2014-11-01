@@ -26,7 +26,6 @@ app.use(express.json(false));
 app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(express.static(path.join(__dirname, 'public')));
-//app.use(express.static(path.join(__dirname, 'SPA')));
 app.engine('html', require('ejs').renderFile);
 
 app.get('/', function(req, res) {

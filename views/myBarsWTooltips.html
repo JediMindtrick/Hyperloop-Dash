@@ -54,6 +54,10 @@ body {
   top: 100%;
   left: 0;
 }
+
+.selected {
+    fill: #CC7F32;
+}
 </style>
 <body>
 <h1>this one is mine.</h1>
@@ -65,8 +69,8 @@ body {
 <script>
 
 var margin = {top: 40, right: 20, bottom: 30, left: 40},
-    width = 1000 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+    width = 1200 - margin.left - margin.right,
+    height = 200 - margin.top - margin.bottom;
 
 var x = d3.scale.ordinal()
     .rangeRoundBands([0, width], .1);
@@ -97,6 +101,16 @@ var svg = d3.select("body").append("svg")
 
 svg.call(tip);
 
+var lastSelected = null;
+var setActive = function(element,data){
+    if(lastSelected){
+        d3.select(lastSelected).classed('selected',false);
+    }
+    d3.select(element).classed('selected',true);
+    lastSelected = element;
+    console.log('selected: ' + JSON.stringify(data));
+};
+
 d3.json("/data/bigPerfData.json", function(error, res) {
 
     var dataPoints = getDataPoints(res.data);
@@ -109,16 +123,26 @@ d3.json("/data/bigPerfData.json", function(error, res) {
     svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
+        .call(xAxis)
+        //see this for info on rotating x-axis labels: http://www.d3noob.org/2013/01/how-to-rotate-text-labels-for-x-axis-of.html
+        .selectAll("text")
+            .style("text-anchor","end")
+            .attr("dx","-.8em")
+            .attr("dy",".15em")
+            .attr("transform",function(d){
+                return "rotate(-90)";
+            });
+
 
     svg.append("g")
         .attr("class", "y axis")
+        .attr("transform","translate(18,0)")//moves the y-axis closer to the data
         .call(yAxis)
       .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", ".71em")
         .style("text-anchor", "end")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -50)//moves the y-axis label left or right
+        .attr("dy", ".71em")
         .text("Milliseconds");
 
     svg.selectAll(".bar")
@@ -130,7 +154,10 @@ d3.json("/data/bigPerfData.json", function(error, res) {
         .attr("y", function(d) { return y(d.time); })
         .attr("height", function(d) { return height - y(d.time); })
         .on('mouseover', tip.show)
-        .on('mouseout', tip.hide);
+        .on('mouseout', tip.hide)
+        .on('click',function(data){
+            setActive(this,data);
+        });
 
 });
 
