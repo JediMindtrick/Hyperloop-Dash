@@ -60,60 +60,12 @@ body {
 <script type="text/javascript" src="/javascripts/lodash.min.js"></script>
 <script src="/javascripts/d3.v3.min.js"></script>
 <script type="text/javascript" src="/reload/reload.js"></script>
-<script type="text/javascript">
-var getRange = function(arr,start,end){
-    //examples 1-100, 101-200
-    return _.take(_.rest(arr,start-1),(end - start + 1));
-};
-
-var getRangePartitions = function(len,by){
-    var toReturn = [];
-    var ends = [];
-    var currStart = 1;
-
-    while(currStart < len){
-        var _range = {
-            begin: currStart,
-            end: currStart + (by - 1)
-        };
-
-        if(_range.end > len) _range.end = len;
-
-        currStart = _range.end + 1;
-
-        toReturn.push(_range);
-    }
-
-    return toReturn;
-};
-
-var getSet = function(arr){
-    var toReturn = [];
-
-    var partitions = getRangePartitions(arr.length,100);
-
-    toReturn = _.map(partitions,function(part,idx){
-
-        var avg = _.reduce(getRange(arr,part.begin,part.end),
-            function(acc,point){
-                acc.count++;
-                acc.sum += point.TotalTime;
-                return acc;
-            },{count: 0, sum: 0});
-
-        return {
-            partition: idx,
-            time: avg.sum / avg.count
-        };
-    });
-
-    return toReturn;
-};
-</script>
+<script src="/javascripts/d3-tip.js"></script>
+<script type="text/javascript" src="/SPA/analysis.js"></script>
 <script>
 
 var margin = {top: 40, right: 20, bottom: 30, left: 40},
-    width = 960 - margin.left - margin.right,
+    width = 1000 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
 var x = d3.scale.ordinal()
@@ -130,53 +82,26 @@ var yAxis = d3.svg.axis()
     .scale(y)
     .orient("left");
 
+var tip = d3.tip()
+  .attr('class', 'd3-tip')
+  .offset([-10, 0])
+  .html(function(d) {
+    return "<strong>Total Time:</strong> <span style='color:red'>" + d.time + "</span>";
+});
+
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.json("/data/bigPerfData.json", function(error, data) {
+svg.call(tip);
 
-var dataPoints = _.map(data.data,function(e){
-    var evt = e._metadata;
-    var _newEvt = {
-        streamOrder: evt.streamOrder,
-        eventId: evt.eventId,
+d3.json("/data/bigPerfData.json", function(error, res) {
 
-        TotalTime: evt.perfClientReceived - evt.perfClientSent,
-        SendToStream: evt.perfStreamReceived - evt.perfClientSent,
-        Between1: evt.perfBeginCommit - evt.perfStreamReceived,
-        WriteToDisk: evt.perfEndCommit - evt.perfBeginCommit,
-        Between2: evt.perfPublishEvent - evt.perfEndCommit,
-        SendToBLP: evt.perfPublishReceived - evt.perfPublishEvent,
-        BLPlogic: evt.perfSendToStore - evt.perfPublishReceived,
-        SendToStore: evt.perfStoreReceived - evt.perfSendToStore,
-        SetModel: evt.perfNotifyModelChange - evt.perfStoreReceived,
-        SendToClient: evt.perfClientReceived - evt.perfNotifyModelChange,
+    var dataPoints = getDataPoints(res.data);
 
-        perfClientSent: evt.perfClientSent,
-        perfStreamReceived: evt.perfStreamReceived,
-        perfBeginCommit: evt.perfBeginCommit,
-        perfEndCommit: evt.perfEndCommit,
-        perfPublishEvent: evt.perfPublishEvent,
-        perfPublishReceived: evt.perfPublishReceived,
-        perfSendToStore: evt.perfSendToStore,
-        perfStoreReceived: evt.perfStoreReceived,
-        perfNotifyModelChange: evt.perfNotifyModelChange,
-        perfClientReceived: evt.perfClientReceived
-    };
-    return _newEvt;
-});
-
-    var set0 = getSet(dataPoints);
-
-    var set = [
-        {partition: '1', time: 400},
-        {partition: '2', time: 8000}
-    ];
-
-    set = set0;
+    var set = getSet(dataPoints);
 
     x.domain(_.map(set,function(d) { return d.partition; }));
     y.domain([0, d3.max(set, function(d) { return d.time; })]);
@@ -188,7 +113,13 @@ var dataPoints = _.map(data.data,function(e){
 
     svg.append("g")
         .attr("class", "y axis")
-        .call(yAxis);
+        .call(yAxis)
+      .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("Milliseconds");
 
     svg.selectAll(".bar")
         .data(set)
@@ -197,7 +128,9 @@ var dataPoints = _.map(data.data,function(e){
         .attr("x", function(d) { return x(d.partition); })
         .attr("width", x.rangeBand())
         .attr("y", function(d) { return y(d.time); })
-        .attr("height", function(d) { return height - y(d.time); });
+        .attr("height", function(d) { return height - y(d.time); })
+        .on('mouseover', tip.show)
+        .on('mouseout', tip.hide);
 
 });
 

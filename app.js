@@ -7,7 +7,9 @@ In package.json
     "reload": "JediMindtrick/reload"
 
 In shell
-supervisor -e 'html|js' node server.js
+supervisor -e 'html|js' node app.js
+or just
+npm start
 */
 var express = require('express'),
 http = require('http'),
@@ -24,6 +26,7 @@ app.use(express.json(false));
 app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(express.static(path.join(__dirname, 'public')));
+//app.use(express.static(path.join(__dirname, 'SPA')));
 app.engine('html', require('ejs').renderFile);
 
 app.get('/', function(req, res) {
@@ -51,7 +54,7 @@ app.get('/BarTooltips',function(req,res){
 });
 
 app.get('/MyBarTooltips',function(req,res){
-    res.render('myBarsWTooltips.html');    
+    res.render('myBarsWTooltips.html');
 });
 
 server = http.createServer(app).listen(app.get('port'), function(){

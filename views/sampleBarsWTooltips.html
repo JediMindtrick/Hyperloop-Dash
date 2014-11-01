@@ -56,10 +56,9 @@ body {
 }
 </style>
 <body>
-<!--<script src="http://d3js.org/d3.v3.min.js"></script>-->
 <script src="/javascripts/d3.v3.min.js"></script>
 <script type="text/javascript" src="/reload/reload.js"></script>
-<!--<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>-->
+<script src="/javascripts/d3-tip.js"></script>
 <script>
 
 var margin = {top: 40, right: 20, bottom: 30, left: 40},
@@ -83,14 +82,12 @@ var yAxis = d3.svg.axis()
     .orient("left")
     .tickFormat(formatPercent);
 
-/*
 var tip = d3.tip()
   .attr('class', 'd3-tip')
   .offset([-10, 0])
   .html(function(d) {
     return "<strong>Frequency:</strong> <span style='color:red'>" + d.frequency + "</span>";
-  })
-  */
+});
 
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -98,7 +95,7 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-//svg.call(tip);
+svg.call(tip);
 
 d3.tsv("/data/barTooltips.tsv", type, function(error, data) {
   x.domain(data.map(function(d) { return d.letter; }));
