@@ -37,8 +37,8 @@
     <label>Start: {{dataHeader.startTime}}</label><br />
     <label>End: {{dataHeader.endTime}}</label><br />
 
-	<div ng-controller="PaginatedGridCtrl" ng-include src="'/SPA/PaginatedGrid/PaginatedGrid_template.html'" ></div>
 	<div ng-controller="OverviewBarChartCtrl" ng-include src="'/SPA/OverviewBarChart/OverviewBarChart_template.html'" ></div>
+	<div ng-controller="PaginatedGridCtrl" ng-include src="'/SPA/PaginatedGrid/PaginatedGrid_template.html'" ></div>
 
 </div>
 
@@ -86,11 +86,14 @@ angular.module('HyperloopDashboard',['PaginatedGrid','OverviewBarChart'])
         $scope.headerRow = [_.last($scope.dataPoints)];
     };
 
+	$scope.$on('BarChartOverviewPartitionSelected',function(e,part){
+		$scope.$broadcast('OverviewPartitionSelected',part);
+	});
+
 /* location of the real store is $http.get('http://54.68.110.91\:6001/Store/TestOrg/current/0')*/
     $http.get('/data/bigPerfData.json')
     .then(function(data){
 
-        //data.data.data
         dataPoints = getDataPoints(data.data.data);
 
         delete data.data.data;

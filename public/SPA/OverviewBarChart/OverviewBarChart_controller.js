@@ -35,6 +35,8 @@ angular.module('OverviewBarChart',[])
         }
         d3.select(element).classed('selected',true);
         lastSelected = element;
+        console.log(JSON.stringify(data));
+        $scope.$emit('BarChartOverviewPartitionSelected',data.partition);
     };
 
     $scope.$on('TestRunSelected',function(e,testRun){
@@ -43,8 +45,8 @@ angular.module('OverviewBarChart',[])
         var svg = d3.select(".OverviewBarChart").append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
-          .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         svg.call(tip);
 
