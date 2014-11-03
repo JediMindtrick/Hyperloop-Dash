@@ -29,6 +29,7 @@ body {
 </style>
 <body>
 <script src="/javascripts/d3.v3.min.js"></script>
+<script type="text/javascript" src="/reload/reload.js"></script>
 <script>
 
 var margin = {top: 20, right: 100, bottom: 30, left: 40},
@@ -64,10 +65,19 @@ d3.csv("/data/stackedBar.csv", function(error, data) {
 
   data.forEach(function(d) {
     var y0 = 0;
-    d.ages = color.domain().map(function(name) { return {name: name, y0: y0, y1: y0 += +d[name]}; });
-    d.ages.forEach(function(d) { d.y0 /= y0; d.y1 /= y0; });
+    d.ages = color.domain().map(function(name) {
+        //y0 is treated like an accumulator
+        return {name: name, y0: y0, y1: y0 += +d[name]};
+    });
+    //this part normalizes the various bars to the sum total
+    //each becomes a fraction and the sum total becomes 1
+    d.ages.forEach(function(a) {
+        a.y0 /= y0;
+        a.y1 /= y0;
+    });
   });
 
+    //this stacks the bars in the "right" order...in our case we are not going to need to do this
   data.sort(function(a, b) { return b.ages[0].y1 - a.ages[0].y1; });
 
   x.domain(data.map(function(d) { return d.State; }));

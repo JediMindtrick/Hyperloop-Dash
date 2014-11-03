@@ -28,8 +28,10 @@ body {
 
 </style>
 <body>
+<script type="text/javascript" src="/javascripts/lodash.min.js"></script>
 <script src="/javascripts/d3.v3.min.js"></script>
 <script type="text/javascript" src="/reload/reload.js"></script>
+<script type="text/javascript" src="/SPA/analysis.js"></script>
 <h1>This one is mine</h1>
 <script>
 
@@ -41,10 +43,10 @@ var x = d3.scale.ordinal()
     .rangeRoundBands([0, width], .1);
 
 var y = d3.scale.linear()
-    .rangeRound([height, 0]);
+    .range([height, 0]);
 
 var color = d3.scale.ordinal()
-    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00", "#8a89a7", "#6b486c"]);
 
 var xAxis = d3.svg.axis()
     .scale(x)
@@ -52,8 +54,7 @@ var xAxis = d3.svg.axis()
 
 var yAxis = d3.svg.axis()
     .scale(y)
-    .orient("left")
-    .tickFormat(d3.format(".0%"));
+    .orient("left");
 
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -61,18 +62,49 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.csv("/data/stackedBar.csv", function(error, data) {
-  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "State"; }));
+//d3.csv("/data/stackedBar.csv", function(error, data) {
+d3.json("/data/bigPerfData.json", function(error, res) {
+
+    var dataPoints = getDataPoints(res.data);
+
+    var data = getSet(dataPoints);
+
+/*
+    var data = [
+    {   partition: 0, SendToStream: 1, Between1: 1, WriteToDisk: 1, Between2: 1, SendToBLP: 1,
+        BLPLogic: 1, SendToStore: 1, SetModel: 1, SendToClient: 1, time: 9
+    },
+    {   partition: 1, SendToStream: 2, Between1: 1, WriteToDisk: 1, Between2: 1, SendToBLP: 1,
+        BLPLogic: 1, SendToStore: 2, SetModel: 1, SendToClient: 2, time: 12
+    }];
+*/
+
+
+    //this maps a color to an event
+  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "Partition" && key !== 'TotalTime' && key !== 'time' && key !== 'partition'; }));
+
+//  y.domain([0, d3.max(data, function(d) { return d.TotalTime; })]);
+  y.domain([0, d3.max(data, function(d) { return d.time; })]);
 
   data.forEach(function(d) {
     var y0 = 0;
-    d.ages = color.domain().map(function(name) { return {name: name, y0: y0, y1: y0 += +d[name]}; });
-    d.ages.forEach(function(d) { d.y0 /= y0; d.y1 /= y0; });
+    d.byEvent = color.domain().map(function(name) {
+        //y0 is treated like an accumulator
+        var evtLength = d[name];
+
+        var _mapped = {
+            name: name,
+            y0: y0,
+            y1: y0 + evtLength
+        };
+
+        y0 = y0 + evtLength;
+
+        return _mapped;
+    });
   });
 
-  data.sort(function(a, b) { return b.ages[0].y1 - a.ages[0].y1; });
-
-  x.domain(data.map(function(d) { return d.State; }));
+  x.domain(data.map(function(d) { return d.partition; }));
 
   svg.append("g")
       .attr("class", "x axis")
@@ -87,18 +119,23 @@ d3.csv("/data/stackedBar.csv", function(error, data) {
       .data(data)
     .enter().append("g")
       .attr("class", "state")
-      .attr("transform", function(d) { return "translate(" + x(d.State) + ",0)"; });
+      .attr("transform", function(d) { return "translate(" + x(d.partition) + ",0)"; });
+//      .attr("transform", function(d) { return "translate(" + x(d.Partition) + ",0)"; });
 
   state.selectAll("rect")
-      .data(function(d) { return d.ages; })
+      .data(function(d) { return d.byEvent; })
     .enter().append("rect")
       .attr("width", x.rangeBand())
       .attr("y", function(d) { return y(d.y1); })
-      .attr("height", function(d) { return y(d.y0) - y(d.y1); })
-      .style("fill", function(d) { return color(d.name); });
+      .attr("height", function(d) {
+          return y(d.y0) - y(d.y1);
+          })
+      .style("fill", function(d) {
+          return color(d.name);
+          });
 
   var legend = svg.select(".state:last-child").selectAll(".legend")
-      .data(function(d) { return d.ages; })
+      .data(function(d) { return d.byEvent; })
     .enter().append("g")
       .attr("class", "legend")
       .attr("transform", function(d) { return "translate(" + x.rangeBand() / 2 + "," + y((d.y0 + d.y1) / 2) + ")"; });
