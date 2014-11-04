@@ -26,12 +26,65 @@ body {
   shape-rendering: crispEdges;
 }
 
+.sendToStream_bar{fill: #98abc5;}
+.between1_bar{fill: #8a89a6; }
+.writeToDisk_bar{fill: #7b6888;}
+.between2_bar{fill: #6b486b;}
+.sendToBLP_bar{fill: #a05d56;}
+.blpLogic_bar{fill: #d0743c;}
+.sendToStore_bar{fill: #ff8c00;}
+.setModel_bar{fill: #8a89a7;}
+.sendToClient_bar{fill: #6b486c;}
+.time_bar{
+    fill: white;
+    fill-opacity: 0;
+}
+
+.time_bar:hover {
+    fill: orangered ;
+    fill-opacity: 1;
+}
+
+.d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+
+.selected {
+    fill: #CC7F32;
+    fill-opacity: 1;
+}
 </style>
 <body>
 <script type="text/javascript" src="/javascripts/lodash.min.js"></script>
 <script src="/javascripts/d3.v3.min.js"></script>
 <script type="text/javascript" src="/reload/reload.js"></script>
 <script type="text/javascript" src="/SPA/analysis.js"></script>
+<script src="/javascripts/d3-tip.js"></script>
 <h1>This one is mine</h1>
 <script>
 
@@ -46,7 +99,7 @@ var y = d3.scale.linear()
     .range([height, 0]);
 
 var color = d3.scale.ordinal()
-    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00", "#8a89a7", "#6b486c"]);
+.range(["", "", "", "", "", "", "", "", "",""]);
 
 var xAxis = d3.svg.axis()
     .scale(x)
@@ -56,60 +109,93 @@ var yAxis = d3.svg.axis()
     .scale(y)
     .orient("left");
 
+var tip = d3.tip()
+    .attr('class', 'd3-tip')
+    .offset([-10, 0])
+    .html(function(d) {
+        return "<strong>Total Time:</strong> <span style='color:red'>" + d.time + "</span>";
+});
+var lastSelected = null;
+var setActive = function(element,data){
+    if(lastSelected){
+        d3.select(lastSelected).classed('selected',false);
+    }
+    d3.select(element).classed('selected',true);
+    lastSelected = element;
+    console.log('selected: ' + JSON.stringify(data));
+};
+
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-//d3.csv("/data/stackedBar.csv", function(error, data) {
+svg.call(tip);
+
 d3.json("/data/bigPerfData.json", function(error, res) {
 
     var dataPoints = getDataPoints(res.data);
 
     var data = getSet(dataPoints);
 
-/*
-    var data = [
-    {   partition: 0, SendToStream: 1, Between1: 1, WriteToDisk: 1, Between2: 1, SendToBLP: 1,
-        BLPLogic: 1, SendToStore: 1, SetModel: 1, SendToClient: 1, time: 9
-    },
-    {   partition: 1, SendToStream: 2, Between1: 1, WriteToDisk: 1, Between2: 1, SendToBLP: 1,
-        BLPLogic: 1, SendToStore: 2, SetModel: 1, SendToClient: 2, time: 12
-    }];
-*/
+    var largestY = d3.max(data,function(d){return d.time;});
+    var largestPart = d3.max(data,function(d){return d.partition;});
+    data.push({
+        partition: largestPart + 1,
+        time: largestY,
+        sendToStream: largestY / 9,
+        between1: largestY / 9,
+        writeToDisk: largestY / 9,
+        between2: largestY / 9,
+        sendToBLP: largestY / 9,
+        blpLogic: largestY / 9,
+        sendToStore: largestY / 9,
+        setModel: largestY / 9,
+        sendToClient: largestY / 9
+    })
 
+    //this maps a color to an event name
+    color.domain(d3.keys(data[0]).filter(function(key) {
+        return /*key !== 'time' &&*/ key !== 'partition'; }));
 
-    //this maps a color to an event
-  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "Partition" && key !== 'TotalTime' && key !== 'time' && key !== 'partition'; }));
+    y.domain([0, d3.max(data, function(d) { return d.time; })]);
 
-//  y.domain([0, d3.max(data, function(d) { return d.TotalTime; })]);
-  y.domain([0, d3.max(data, function(d) { return d.time; })]);
+    data.forEach(function(d) {
+        var y0 = 0;
+        d.byEvent = color.domain().map(function(name) {
 
-  data.forEach(function(d) {
-    var y0 = 0;
-    d.byEvent = color.domain().map(function(name) {
-        //y0 is treated like an accumulator
-        var evtLength = d[name];
+            if(name === 'time'){
+                return {
+                    name: 'time',
+                    y0: 0,
+                    y1: d.time
+                };
+            }
 
-        var _mapped = {
-            name: name,
-            y0: y0,
-            y1: y0 + evtLength
-        };
+            //y0 is treated like an accumulator
+            var evtLength = d[name];
 
-        y0 = y0 + evtLength;
+            var _mapped = {
+                name: name,
+                y0: y0,
+                y1: y0 + evtLength
+            };
 
-        return _mapped;
+            y0 = y0 + evtLength;
+
+            return _mapped;
+        });
     });
-  });
 
   x.domain(data.map(function(d) { return d.partition; }));
 
   svg.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height + ")")
-      .call(xAxis);
+      .call(xAxis)
+    //see this for info on rotating x-axis labels: http://www.d3noob.org/2013/01/how-to-rotate-text-labels-for-x-axis-of.html
+    .selectAll("text").remove();
 
   svg.append("g")
       .attr("class", "y axis")
@@ -120,19 +206,16 @@ d3.json("/data/bigPerfData.json", function(error, res) {
     .enter().append("g")
       .attr("class", "state")
       .attr("transform", function(d) { return "translate(" + x(d.partition) + ",0)"; });
-//      .attr("transform", function(d) { return "translate(" + x(d.Partition) + ",0)"; });
 
   state.selectAll("rect")
       .data(function(d) { return d.byEvent; })
     .enter().append("rect")
       .attr("width", x.rangeBand())
       .attr("y", function(d) { return y(d.y1); })
+      .attr("class",function(d){ return d.name + '_bar'; })
       .attr("height", function(d) {
           return y(d.y0) - y(d.y1);
-          })
-      .style("fill", function(d) {
-          return color(d.name);
-          });
+      });
 
   var legend = svg.select(".state:last-child").selectAll(".legend")
       .data(function(d) { return d.byEvent; })
@@ -147,6 +230,15 @@ d3.json("/data/bigPerfData.json", function(error, res) {
       .attr("x", 13)
       .attr("dy", ".35em")
       .text(function(d) { return d.name; });
+
+    svg.selectAll(".time_bar")
+        .data(data)
+        .on('mouseover', tip.show)
+        .on('mouseout', tip.hide)
+        .on('click',function(dataPoint){
+            //console.log(JSON.stringify(data));
+            setActive(this,dataPoint);
+        });
 
 });
 
