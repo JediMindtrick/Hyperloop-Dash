@@ -201,11 +201,13 @@ d3.json("/data/bigPerfData.json", function(error, res) {
       .attr("class", "y axis")
       .call(yAxis);
 
-  var state = svg.selectAll(".state")
-      .data(data)
-    .enter().append("g")
-      .attr("class", "state")
-      .attr("transform", function(d) { return "translate(" + x(d.partition) + ",0)"; });
+    var state = svg.selectAll(".state")
+        .data(data)
+        .enter().append("g")
+        .attr("class", "state")
+        .attr("transform", function(d) {
+          return "translate(" + x(d.partition) + ",0)";
+        });
 
   state.selectAll("rect")
       .data(function(d) { return d.byEvent; })
